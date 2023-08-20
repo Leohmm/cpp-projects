@@ -1,0 +1,152 @@
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <iomanip>
+#include <string>
+#include <cmath>
+
+
+
+using namespace std;
+
+struct estruturaOnda {
+                  //RIFF
+                  char id[4];
+                  uint32_t tam;
+                  char fmt[4];
+                  //FMT
+                  char SubC1ID[4];
+                  uint32_t Size1;
+                  uint16_t adForm;
+                  uint16_t nCanais;
+                  uint32_t sampleR;
+                  uint32_t byteRate;
+                  uint16_t blockAlig;
+                  uint16_t BitPerSam;
+                  //Data
+                  char SubC2ID[4];
+                  uint32_t Size2;
+                  uint64_t dataMusica;
+
+     //               static const uint16_t BUFFER_SIZE = 4096;
+   //     int16_t* buffer = new int16_t[tam];
+                };
+
+string showID(char * id), waveFile;
+
+
+
+void escrevArq(ofstream &file, int valor, int tamn){
+    file.write(reinterpret_cast<const char *> (&valor), tamn);
+}
+
+
+int main()
+{
+float CutMusI, CutMusF;
+cout << "Defina o comeco e o fim de seu corte\n\n";
+cin>> CutMusI;
+cin>> CutMusF;
+//int16_t* byte = new int16_t[tam];
+float abada = 44100;
+
+
+float CutI =  (CutMusI * abada);
+ float CutF = (CutMusF * abada);
+ cout << CutI <<"\n" << CutF << endl;
+
+   char filename[100]="ComeTogether.wav";
+  ifstream inFile; // inFile é o arquivo de leitura dos dados
+
+  setlocale(LC_ALL,"");
+
+  inFile.open(filename, ios::in|ios::binary); // abre o arquivo para leitura
+  if (! inFile)
+     { cerr << "Arquivo saida.txt nao pode ser aberto" << endl;
+      return -1;
+     }
+
+
+  estruturaOnda wcid;
+
+  unsigned char som;
+
+  inFile.read((char *)&wcid,sizeof(estruturaOnda));
+
+
+    cout << "ID arquivo " << showID(wcid.id)  << endl;
+    cout << "Formato " << showID(wcid.fmt) << endl;
+    cout << "Tamanho arquivo : " << wcid.tam << endl;
+    cout << "FMT : "<< showID(wcid.SubC1ID) << endl;
+    cout << "Tamanho FMT : "<< wcid.Size1 << endl;
+    cout << "Formato Audio : "<< wcid.adForm << endl;
+    cout << "Numero de canais : "<< wcid.nCanais << endl;
+    cout << "Taxa de amostragem : "<<wcid.sampleR << endl;
+    cout << "Taxa de Bytes :  "<<wcid.byteRate << endl;
+    cout << "ALinhamento de bloco : "<<wcid.blockAlig << endl;
+    cout << "Bits por amostragem : "<<wcid.BitPerSam << endl;
+    cout <<"ID da data : "<<showID(wcid.SubC2ID) << endl;
+    cout <<"Tamanho da data : "<< wcid.Size2 <<endl;
+    cout <<"Data Audio : "<< wcid.dataMusica<<endl;
+
+ /*   for(int i = 0; i <wcid.sampleR * (CutMusF - CutMusI) - 32; i++){ //32 bytes de "meta dados" no final do arquivo
+
+    inFile>>byte;
+
+}*/
+
+    inFile.close();
+
+
+ofstream outFile; // inFile é o arquivo de leitura dos dados
+   char filename2[100] = "ComeTogether_cut.wav";
+   waveFile = filename2;
+    outFile.open(waveFile.c_str (), ios::binary); // abre o arquivo para leitura
+
+ outFile.write(reinterpret_cast<char*> (&wcid), sizeof(wcid));
+  if (! outFile)
+     { cerr << "Arquivo saida.txt nao pode ser aberto" << endl;
+      return -1;
+     }
+
+    float tamH = wcid.tam - (wcid.byteRate * 220);
+    //44398 = 19448398 -19404000
+//(total de bytes da música = taxa bytes por amostragem* tempo da música em segundos)
+int cut = tamH + CutI; //32 bits de "meta dados" no final do data
+cout<<"Posicao em bytes do segundo inicial: " << cut<< "\n"; //Bytes do segundo inicial
+
+float cut1 = tamH + CutF - 44;
+cout<< "Posicao em bytes do segundo final: " <<cut1<< "\n"; //Bytes do segundo inicial
+
+
+
+for(int i = 0; i <wcid.sampleR * (CutMusF - CutMusI) - 44; i++){ //40 bytes de "meta dados" no final do arquivo
+//printf("%x \n",(wcid.buffer ));
+
+//outFile.write(reinterpret_cast<char*> (&wcid), sizeof(wcid));
+
+
+escrevArq(outFile,cut,2);
+cut++;
+
+
+}
+  int posAudio= outFile.tellp();
+
+cout<< "Tatamanho do Arquivo :"<< (posAudio/1024)+1;
+
+
+
+    outFile.close();
+
+}
+
+string showID(char id[])
+{
+    string sid;
+
+    for (int i=0;i<4;i++)
+        sid.push_back(id[i]);
+    return sid;
+
+}
