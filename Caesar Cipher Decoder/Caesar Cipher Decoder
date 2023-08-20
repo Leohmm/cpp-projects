@@ -1,0 +1,151 @@
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <iomanip>
+#include <string>
+#include <string.h>
+#include <locale>
+#include <cctype>
+
+using namespace std;
+
+int main(){
+
+    ifstream leitura;
+
+
+    setlocale (LC_ALL, "");
+
+    char  caracter, palavraC, palavra[200], Msg[200], decodificado, testChave, Pletra, Sletra, Tletra, Qletra;
+    int chave=1, i=0, c=0, NumLetras=0, chaveTeste=0, k=1;
+    string NomeArq, textFile, textFile2, mensagem;
+
+    cout << "Feito por Anthony Guerreiro e Leonardo Heck da 4311 \n\n";
+
+    cout << "Escreva o nome do arquivo" << endl;
+
+    cin >> NomeArq;
+
+    cout << "Há uma chave de deslocamento específica? (s/n)" << endl;
+    cin >> testChave;
+    if(testChave=='s'){
+        cout << "Qual a chave de deslocamento?" << endl;
+        cin >> chaveTeste;
+    }
+    if(testChave=='n'){
+        cout << "Digite as 4 primeiras letras da mensagem (em maiúsculo)" << endl;
+        cin >> Pletra >> Sletra >> Tletra >> Qletra;
+    }
+
+  textFile = NomeArq + ".txt";
+
+  if (!leitura)
+      { cerr << " Arquivo saida.txt não pode ser aberto" << endl;
+  return -1;}
+
+leitura.open (textFile.c_str (), ios::in);
+  while (leitura.get(palavra,200))
+   {
+
+    if (testChave == 'n'){//DECODIFICAÇÃO SEM CHAVE
+       while(chave < 26)
+    {
+        i = 0;
+        while(palavra[i] != '\0')
+        { //Utilizando diversas chaves para mudar as letras de acordo com a tabela ASCII
+            Msg[i] = palavra[i] - chave;
+            if((palavra[i] - chave) > 90)
+            {
+                Msg[i] -= 26;
+            }
+            if((palavra[i] - chave) < 65)
+            {
+                Msg[i] += 26;
+            }
+            i++;
+        }
+
+    {//CORRIGE SÍMBOLOS INDESEJADOS
+        int j=i;
+        Msg[j] = '\0';
+
+        for(i=0; i<j; i++){
+        if(Msg[i]>90 || Msg[i]<65){
+        Msg[i] = ' ';
+}}
+}        cout<<"chave: "<<chave<<endl<<" palavra: "<<Msg<<endl;
+        if(chave%5 == 0)
+        {
+            cout<<endl<<endl;
+        }
+
+        { //INTERROMPE O CÓDIGO ASSIM QUE ACHA FRAGMENTOS DA MENSAGEM
+        int j=i;
+        for(i=0; i<j; i++){
+         if(Msg[i]==Pletra && Msg[i+1] ==Sletra && Msg[i+2]==Tletra && Msg[i+3]==Qletra){k++;}}
+if(k!=1){
+    break;}
+else{
+chave++;
+}
+ }
+  }  }
+
+    if (testChave=='s'){//DECODIFICAÇÃO COM CHAVE
+        while(palavra[i] != '\0')
+        {
+            Msg[i] = palavra[i] - chaveTeste;
+            if((palavra[i] - chaveTeste) > 90)
+            {
+                Msg[i] -= 26;
+            }
+            if((palavra[i] - chaveTeste) < 65)
+            {
+                Msg[i] += 26;
+            }
+            i++;
+        }
+
+
+
+    {//CORRIGE SÍMBOLOS INDESEJADOS
+        int j=i;
+        Msg[j] = '\0';
+
+        for(i=0; i<j; i++){
+        if(Msg[i]>90 || Msg[i]<65){
+        Msg[i] = ' ';
+}}
+}
+}
+}
+  leitura.close();
+
+
+ofstream decMsg;
+      textFile2 = NomeArq + "_dec" +".txt";
+      decMsg.open(textFile2.c_str (), ios::out);
+
+if (! decMsg){
+  cerr << " Arquivo .txt não pode ser aberto" << endl;
+  return -1;
+}
+
+
+
+if (testChave=='s'){ //EXIBIÇÃO COM CHAVE
+    decMsg << "Mensagem decodificada "<< chaveTeste <<endl<<" palavra: "<<Msg<< endl;
+    cout << "\nUm arquivo com a mensagem e a chave foi criado \n";
+}
+
+
+
+if (testChave == 'n'){ //EXIBIÇÃO SEM CHAVE
+decMsg << "Mensagem decodificada "<< chave<<endl<<" palavra: "<<Msg<< endl;
+    cout <<"\nSua chave é " << chave << "\nUm arquivo com a chave e a mensagem foi criado \n";}
+
+
+
+    decMsg.close();
+    return 0;
+        }
